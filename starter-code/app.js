@@ -9,6 +9,11 @@ const mongoose     = require('mongoose');
 const logger       = require('morgan');
 const path         = require('path');
 
+// estas dos son para poder hacer la sesión
+const session    = require("express-session");
+const MongoStore = require("connect-mongo")(session);
+
+
 
 mongoose
   .connect('mongodb://localhost/starter-code', {useNewUrlParser: true})
@@ -29,6 +34,18 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+
+// Middelware para la sesión
+app.use(session({
+  secret: "top-secret", // Used to sign the session ID cookie (required)
+  cookie: { maxAge: 60000 },
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    ttl: 24 * 60 * 60 // 1 day
+  })
+}));
+
 
 // Express View engine setup
 
